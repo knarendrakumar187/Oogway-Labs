@@ -24,9 +24,30 @@ CRITICAL INSTRUCTIONS:
 4. Refusal: If the provided context does not contain relevant insights to answer the question, do not guess or hallucinate. Clearly say: "I couldn't find any discussion covering this topic in the indexed episodes of Lenny's Podcast."
 """
 
+def get_installed_ollama_models(base_url: str) -> list:
+    try:
+        req = urllib.request.Request(f"{base_url}/api/tags")
+        with urllib.request.urlopen(req, timeout=2.0) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            return [m.get("name", "") for m in data.get("models", [])]
+    except Exception:
+        return []
+
+def resolve_ollama_model(base_url: str, requested_model: Optional[str] = None) -> str:
+    target_model = requested_model or settings.OLLAMA_MODEL
+    installed = get_installed_ollama_models(base_url)
+    if installed:
+        if target_model not in installed:
+            matching = [m for m in installed if target_model.split(":")[0] in m]
+            if matching:
+                return matching[0]
+            return installed[0]
+    return target_model
+
 def call_ollama(prompt: str, system_prompt: str, model: Optional[str] = None) -> str:
     base_url = settings.OLLAMA_BASE_URL.rstrip("/")
-    target_model = model or settings.OLLAMA_MODEL
+    target_model = resolve_ollama_model(base_url, model)
+
     url = f"{base_url}/api/chat"
 
     payload = {
@@ -51,15 +72,33 @@ def call_ollama(prompt: str, system_prompt: str, model: Optional[str] = None) ->
         with urllib.request.urlopen(req, timeout=settings.OLLAMA_TIMEOUT_SECONDS) as resp:
             data = json.loads(resp.read().decode("utf-8"))
             return data.get("message", {}).get("content", "")
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            logger.warning("Ollama model '%s' not found on local instance: %s", target_model, e)
+            raise ProviderError(
+                code="OLLAMA_MODEL_NOT_FOUND",
+                message=f"Model '{target_model}' is not yet downloaded in local Ollama.",
+                troubleshooting=(
+                    f"1. Open your terminal or PowerShell and run: `ollama pull {target_model}`\n"
+                    f"2. Or switch to 'Local Extractive' in the sidebar for instant zero-dependency offline synthesis.\n"
+                    f"3. Or switch to 'Groq LPU' for sub-second cloud inference."
+                )
+            )
+        else:
+            raise ProviderError(
+                code="OLLAMA_HTTP_ERROR",
+                message=f"Ollama returned HTTP {e.code}: {e.reason}",
+                troubleshooting="Check Ollama logs or restart the Ollama application."
+            )
     except urllib.error.URLError as e:
         logger.warning("Ollama connection failed at %s: %s", url, e)
         raise ProviderError(
             code="OLLAMA_NOT_REACHABLE",
-            message=f"Ollama is not reachable at {base_url}. {e}",
+            message=f"Ollama service is not reachable at {base_url}. {e}",
             troubleshooting=(
                 f"1. Make sure Ollama is installed and running (`ollama serve` or open Ollama Desktop).\n"
                 f"2. Pull the model: `ollama run {target_model}`\n"
-                f"3. Or switch LLM_PROVIDER in .env to 'mock', 'openai', or 'anthropic'."
+                f"3. Or switch to 'Groq LPU' or 'Local Extractive' in the sidebar."
             )
         )
     except Exception as e:

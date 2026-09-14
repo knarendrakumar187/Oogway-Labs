@@ -284,7 +284,7 @@ function updateProviderHint() {
     }
     if (activeProviderPill) activeProviderPill.textContent = "Local Extractive";
   } else if (currentProvider === "ollama") {
-    providerHint.textContent = "Local host Ollama inference (llama3.1:8b)";
+    providerHint.textContent = "Local host Ollama inference (Offline Private)";
     if (providerStatusBadge) {
       providerStatusBadge.innerHTML = '<span class="dot-live" style="background:#818cf8"></span> Local';
     }
