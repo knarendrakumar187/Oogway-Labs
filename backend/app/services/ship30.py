@@ -217,12 +217,11 @@ def convert_markdown_to_styled_html(md_text: str, title_clean: str) -> str:
 <style>
   :root {{
     --bg: #ffffff;
-    --text: #1a202c;
-    --primary: #4f46e5;
-    --accent: #f43f5e;
-    --border: #e2e8f0;
-    --quote-bg: #f8fafc;
-    --font-serif: "Merriweather", Georgia, serif;
+    --text: #18181b;
+    --primary: #ea580c;
+    --border: #e4e4e7;
+    --quote-bg: #fafafa;
+    --font-serif: "Newsreader", Georgia, Cambria, serif;
     --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }}
   body {{
@@ -231,92 +230,100 @@ def convert_markdown_to_styled_html(md_text: str, title_clean: str) -> str:
     color: var(--text);
     background: var(--bg);
     margin: 0;
-    padding: 2.5rem;
-    max-width: 760px;
+    padding: 3rem 2rem;
+    max-width: 720px;
     margin-left: auto;
     margin-right: auto;
   }}
+  .byline-bar {{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    color: #71717a;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+  }}
+  .badge {{
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--primary);
+    background: #fff7ed;
+    border: 1px solid #ffedd5;
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+  }}
   h1 {{
     font-family: var(--font-sans);
-    font-size: 2.2rem;
+    font-size: 2.1rem;
     font-weight: 800;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
     line-height: 1.25;
-    color: #0f172a;
+    color: #09090b;
     margin-bottom: 1.5rem;
-    border-bottom: 2px solid var(--border);
-    padding-bottom: 1rem;
   }}
   h2 {{
     font-family: var(--font-sans);
-    font-size: 1.5rem;
+    font-size: 1.35rem;
     font-weight: 700;
-    color: #1e293b;
+    letter-spacing: -0.01em;
+    color: #18181b;
     margin-top: 2.5rem;
     margin-bottom: 1rem;
-    border-left: 4px solid var(--primary);
+    border-left: 3px solid var(--primary);
     padding-left: 0.75rem;
   }}
   h3 {{
     font-family: var(--font-sans);
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 600;
-    color: #334155;
+    color: #27272a;
     margin-top: 1.75rem;
   }}
   p {{
-    font-size: 1.08rem;
+    font-size: 1.1rem;
     margin-bottom: 1.25rem;
+    color: #27272a;
   }}
   strong {{
     font-weight: 700;
-    color: #0f172a;
+    color: #09090b;
   }}
   blockquote {{
     background: var(--quote-bg);
-    border-left: 4px solid var(--primary);
+    border-left: 3px solid var(--primary);
     margin: 1.5rem 0;
-    padding: 1rem 1.5rem;
+    padding: 1rem 1.25rem;
     font-style: italic;
-    color: #334155;
-    border-radius: 0 8px 8px 0;
+    color: #3f3f46;
+    border-radius: 0 6px 6px 0;
   }}
-  ul {{
+  ul, ol {{
     padding-left: 1.5rem;
     margin-bottom: 1.5rem;
   }}
   li {{
     font-size: 1.05rem;
     margin-bottom: 0.5rem;
-  }}
-  .numbered-item {{
-    background: #f1f5f9;
-    padding: 0.75rem 1rem;
-    margin-bottom: 0.75rem;
-    border-radius: 6px;
-    font-family: var(--font-sans);
-    font-size: 1rem;
+    color: #27272a;
   }}
   hr {{
     border: none;
     border-top: 1px solid var(--border);
     margin: 2.5rem 0;
   }}
-  .badge {{
-    display: inline-block;
-    background: #ede9fe;
-    color: #5b21b6;
-    font-family: var(--font-sans);
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.25rem 0.6rem;
-    border-radius: 9999px;
-    margin-bottom: 1rem;
-  }}
 </style>
 </head>
 <body>
-  <div class="badge">Ship 30 for 30 Atomic Essay</div>
+  <div class="byline-bar">
+    <span class="badge">Ship 30 for 30 Atomic Essay</span>
+    <span>Grounded in Lenny's Podcast Transcripts</span>
+  </div>
   {body_content}
 </body>
 </html>"""

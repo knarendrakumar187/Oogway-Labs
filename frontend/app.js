@@ -1,19 +1,18 @@
 // ==========================================================================
-// OOGWAY LABS — LENNY GROWTH INTELLIGENCE FRONTEND LOGIC (v1.2)
-// Enhanced Executive Experience: RAG Exploration, Toast Feedback & Ship 30
+// LENNY'S GROWTH TERMINAL — CLIENT LOGIC
+// Minimalist, robust event architecture for vector search and essay generation.
 // ==========================================================================
 
 let currentSessionId = null;
-let currentProvider = "groq"; // Default to high-speed cloud inference
+let currentProvider = "groq"; // Default high-speed hardware inference
 let activeArtifactData = null;
 
-// DOM Elements
+// DOM Selectors
 const sidebar = document.getElementById("sidebar");
 const sessionListEl = document.getElementById("session-list");
 const sessionCountTag = document.getElementById("session-count-tag");
 const btnNewChat = document.getElementById("btn-new-chat");
 const providerSelect = document.getElementById("provider-select");
-const providerPulse = document.getElementById("provider-pulse");
 const providerHint = document.getElementById("provider-hint");
 const providerStatusBadge = document.getElementById("provider-status-badge");
 const dbStatLabel = document.getElementById("db-stat-label");
@@ -56,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadSessions();
   setupEventListeners();
   setupCategoryTabs();
-  setupGuestChips();
+  setupGuestNavigation();
 });
 
 function setupEventListeners() {
@@ -66,7 +65,7 @@ function setupEventListeners() {
     handleSendMessage();
   });
 
-  // Textarea enter key submit (Shift+Enter for newline)
+  // Textarea enter submit (Shift+Enter for newline)
   messageInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -74,19 +73,19 @@ function setupEventListeners() {
     }
   });
 
-  // Global keyboard shortcuts (Cmd/Ctrl + N for new session)
+  // Global shortcut (Cmd/Ctrl + N for new session)
   document.addEventListener("keydown", (e) => {
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "n") {
       e.preventDefault();
       startNewChat();
-      showToast("Started new session", "✨");
+      showToast("Started new session", "Session reset");
     }
   });
 
-  // Auto-resize textarea
+  // Auto-resize input textarea
   messageInput.addEventListener("input", () => {
     messageInput.style.height = "auto";
-    messageInput.style.height = Math.min(messageInput.scrollHeight, 140) + "px";
+    messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + "px";
   });
 
   // New Chat button
@@ -98,7 +97,7 @@ function setupEventListeners() {
   if (btnClearChat) {
     btnClearChat.addEventListener("click", () => {
       startNewChat();
-      showToast("Conversation cleared", "🧹");
+      showToast("Conversation cleared", "Clean workspace");
     });
   }
 
@@ -106,16 +105,16 @@ function setupEventListeners() {
   providerSelect.addEventListener("change", (e) => {
     currentProvider = e.target.value;
     updateProviderHint();
-    showToast(`Switched inference to ${providerSelect.options[providerSelect.selectedIndex].text.split('(')[0].trim()}`, "⚡");
+    showToast(`Active inference: ${providerSelect.options[providerSelect.selectedIndex].text.split('(')[0].trim()}`, "Engine updated");
   });
 
-  // Dismiss error banner
+  // Dismiss error
   btnDismissError.addEventListener("click", () => {
     errorBanner.style.display = "none";
   });
 
-  // Starter prompt cards
-  document.querySelectorAll(".prompt-card").forEach((card) => {
+  // Brief prompt cards click handler
+  document.querySelectorAll(".brief-card, .prompt-card").forEach((card) => {
     card.addEventListener("click", () => {
       const prompt = card.getAttribute("data-prompt");
       if (prompt) {
@@ -125,7 +124,7 @@ function setupEventListeners() {
     });
   });
 
-  // Artifact panel tabs
+  // Artifact tabs
   tabBtnVisual.addEventListener("click", () => {
     tabBtnVisual.classList.add("active");
     tabBtnRaw.classList.remove("active");
@@ -155,11 +154,11 @@ function setupEventListeners() {
   btnCopyMarkdown.addEventListener("click", () => {
     if (activeArtifactData && activeArtifactData.essay_markdown) {
       navigator.clipboard.writeText(activeArtifactData.essay_markdown);
-      showToast("Atomic essay markdown copied!", "📋");
+      showToast("Essay markdown copied to clipboard", "Copied");
     }
   });
 
-  // Download Standalone HTML
+  // Download HTML Document
   if (btnDownloadHtml) {
     btnDownloadHtml.addEventListener("click", () => {
       if (activeArtifactData && activeArtifactData.essay_html) {
@@ -174,16 +173,16 @@ function setupEventListeners() {
         a.download = `${slug}.html`;
         a.click();
         URL.revokeObjectURL(url);
-        showToast("HTML essay exported successfully!", "💾");
+        showToast("HTML document exported", "Exported");
       }
     });
   }
 }
 
-// --- Prompt Category Filtering ---
+// --- Topic Category Filtering ---
 function setupCategoryTabs() {
   const tabs = document.querySelectorAll(".cat-tab");
-  const cards = document.querySelectorAll(".prompt-card");
+  const cards = document.querySelectorAll(".brief-card, .prompt-card");
 
   tabs.forEach((tab) => {
     tab.addEventListener("click", () => {
@@ -203,13 +202,13 @@ function setupCategoryTabs() {
   });
 }
 
-// --- Guest Chips Filtering & Quick Queries ---
-function setupGuestChips() {
-  const chips = document.querySelectorAll(".guest-chip");
+// --- Guest Navigation & Quick Queries ---
+function setupGuestNavigation() {
+  const items = document.querySelectorAll(".guest-nav-item, .guest-chip");
   const guestQueries = {
     "Elena Verna": "What did Elena Verna say about B2B growth tactics that never work?",
     "Marty Cagan": "What did Marty Cagan say about product discovery and empowered product managers?",
-    "Brian Balfour": "How does Brian Balfour explain the Four Fits framework for sustainable growth?",
+    "Brian Balfour": "What did Brian Balfour say about ChatGPT as a new growth channel?",
     "Shreyas Doshi": "What is Shreyas Doshi's LNO framework for PM time and task prioritization?",
     "Casey Winters": "How does Casey Winters think about retention loops vs top-of-funnel acquisition?",
     "Annie Duke": "What does Annie Duke teach about decision quality vs outcome bias?",
@@ -218,18 +217,18 @@ function setupGuestChips() {
     "April Dunford": "How does April Dunford describe product positioning and competitive alternatives?"
   };
 
-  chips.forEach((chip) => {
-    chip.addEventListener("click", () => {
-      chips.forEach((c) => c.classList.remove("active"));
-      chip.classList.add("active");
+  items.forEach((item) => {
+    item.addEventListener("click", () => {
+      items.forEach((i) => i.classList.remove("active"));
+      item.classList.add("active");
 
-      const guest = chip.getAttribute("data-guest");
+      const guest = item.getAttribute("data-guest");
       if (guest === "all") {
-        document.querySelectorAll(".prompt-card").forEach((c) => c.style.display = "flex");
+        document.querySelectorAll(".brief-card, .prompt-card").forEach((c) => c.style.display = "flex");
       } else if (guestQueries[guest]) {
         messageInput.value = guestQueries[guest];
         messageInput.focus();
-        showToast(`Loaded query for ${guest}`, "🎙️");
+        showToast(`Loaded query for ${guest}`, "Query selected");
       }
     });
   });
@@ -243,13 +242,12 @@ async function initHealthCheck() {
     const data = await res.json();
 
     if (dbStatLabel) {
-      dbStatLabel.textContent = `Vector Store Connected · ${data.database_backend}`;
+      dbStatLabel.textContent = `Indexed: ${data.indexed_chunks} Chunks (${data.episodes_indexed} Episodes) · ${data.database_backend}`;
     }
     if (dbStatShort) {
       dbStatShort.textContent = data.database_backend;
     }
 
-    // Auto-select preferred active provider
     if (data.available_providers) {
       if (data.available_providers.groq) {
         providerSelect.value = "groq";
@@ -265,56 +263,44 @@ async function initHealthCheck() {
     }
   } catch (err) {
     console.warn("Could not reach /api/health:", err);
-    if (dbStatLabel) dbStatLabel.textContent = "DB: Offline";
-    if (providerPulse) providerPulse.className = "pulse-indicator error";
+    if (dbStatLabel) dbStatLabel.textContent = "Offline";
     if (providerStatusBadge) {
-      providerStatusBadge.textContent = "Offline";
-      providerStatusBadge.style.color = "#f43f5e";
+      providerStatusBadge.innerHTML = '<span style="color:#f43f5e">Offline</span>';
     }
   }
 }
 
 function updateProviderHint() {
   if (currentProvider === "groq") {
-    providerHint.textContent = "⚡ Groq Cloud LPU (compound-mini · Ultra-fast ~1.2s inference)";
-    if (providerPulse) providerPulse.className = "pulse-indicator";
+    providerHint.textContent = "Hardware-accelerated cloud inference (~0.8s latency)";
     if (providerStatusBadge) {
-      providerStatusBadge.textContent = "Cloud Active";
-      providerStatusBadge.style.color = "#34d399";
+      providerStatusBadge.innerHTML = '<span class="dot-live"></span> Active';
     }
-    if (activeProviderPill) activeProviderPill.textContent = "⚡ Groq Cloud LPU";
+    if (activeProviderPill) activeProviderPill.textContent = "Groq LPU";
   } else if (currentProvider === "mock") {
-    providerHint.textContent = "🛡️ Deterministic extractive synthesis directly from transcripts (zero external keys)";
-    if (providerPulse) providerPulse.className = "pulse-indicator";
+    providerHint.textContent = "Deterministic extractive synthesis (Zero dependencies)";
     if (providerStatusBadge) {
-      providerStatusBadge.textContent = "Local Extractive";
-      providerStatusBadge.style.color = "#38bdf8";
+      providerStatusBadge.innerHTML = '<span class="dot-live" style="background:#38bdf8"></span> Verified';
     }
-    if (activeProviderPill) activeProviderPill.textContent = "🛡️ Extractive RAG";
+    if (activeProviderPill) activeProviderPill.textContent = "Local Extractive";
   } else if (currentProvider === "ollama") {
-    providerHint.textContent = "💻 Local laptop Ollama inference (llama3.1:8b)";
-    if (providerPulse) providerPulse.className = "pulse-indicator";
+    providerHint.textContent = "Local host Ollama inference (llama3.1:8b)";
     if (providerStatusBadge) {
-      providerStatusBadge.textContent = "Local Ollama";
-      providerStatusBadge.style.color = "#818cf8";
+      providerStatusBadge.innerHTML = '<span class="dot-live" style="background:#818cf8"></span> Local';
     }
-    if (activeProviderPill) activeProviderPill.textContent = "💻 Local Ollama";
+    if (activeProviderPill) activeProviderPill.textContent = "Local Ollama";
   } else if (currentProvider === "openai") {
-    providerHint.textContent = "🌐 OpenAI Cloud API (gpt-4o-mini)";
-    if (providerPulse) providerPulse.className = "pulse-indicator";
+    providerHint.textContent = "OpenAI API (gpt-4o-mini)";
     if (providerStatusBadge) {
-      providerStatusBadge.textContent = "OpenAI Active";
-      providerStatusBadge.style.color = "#10b981";
+      providerStatusBadge.innerHTML = '<span class="dot-live" style="background:#10b981"></span> Cloud';
     }
-    if (activeProviderPill) activeProviderPill.textContent = "🌐 OpenAI Cloud";
+    if (activeProviderPill) activeProviderPill.textContent = "OpenAI";
   } else if (currentProvider === "anthropic") {
-    providerHint.textContent = "🧠 Anthropic Cloud API (Claude 3.5 Sonnet)";
-    if (providerPulse) providerPulse.className = "pulse-indicator";
+    providerHint.textContent = "Anthropic API (Claude 3.5 Sonnet)";
     if (providerStatusBadge) {
-      providerStatusBadge.textContent = "Claude Active";
-      providerStatusBadge.style.color = "#a855f7";
+      providerStatusBadge.innerHTML = '<span class="dot-live" style="background:#a855f7"></span> Cloud';
     }
-    if (activeProviderPill) activeProviderPill.textContent = "🧠 Anthropic Cloud";
+    if (activeProviderPill) activeProviderPill.textContent = "Anthropic";
   }
 }
 
@@ -331,12 +317,7 @@ async function loadSessions() {
 
     sessionListEl.innerHTML = "";
     if (sessions.length === 0) {
-      sessionListEl.innerHTML = `
-        <div class="session-empty">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-          <span>No conversations yet</span>
-        </div>
-      `;
+      sessionListEl.innerHTML = `<div class="session-empty">No previous sessions</div>`;
       return;
     }
 
@@ -345,7 +326,7 @@ async function loadSessions() {
       item.className = `session-item ${s.id === currentSessionId ? "active" : ""}`;
       item.innerHTML = `
         <div class="session-item-title" title="${escapeHtml(s.title)}">${escapeHtml(s.title)}</div>
-        <button class="session-item-delete" title="Delete conversation">&times;</button>
+        <button class="session-item-delete" title="Delete">&times;</button>
       `;
 
       item.querySelector(".session-item-title").addEventListener("click", () => {
@@ -366,7 +347,7 @@ async function loadSessions() {
 
 function startNewChat() {
   currentSessionId = null;
-  activeSessionTitle.textContent = "Executive Growth Advisor";
+  activeSessionTitle.textContent = "New Session";
   welcomeScreen.style.display = "block";
   messageFeed.innerHTML = "";
   errorBanner.style.display = "none";
@@ -385,7 +366,7 @@ async function selectSession(sessionId) {
     if (!res.ok) throw new Error("Could not load session history");
     const detail = await res.json();
 
-    activeSessionTitle.textContent = detail.title || "Conversation";
+    activeSessionTitle.textContent = detail.title || "Session";
 
     detail.messages.forEach((msg) => {
       appendMessageToUI(msg.role, msg.content, msg.sources_cited, msg.provider_used, msg.id);
@@ -394,15 +375,15 @@ async function selectSession(sessionId) {
     loadSessions();
     scrollToBottom();
   } catch (err) {
-    showError("Session Load Error", err.message, "Try creating a new chat session.");
+    showError("Session Load Error", err.message, "Try initiating a new session.");
   }
 }
 
 async function deleteSession(sessionId) {
-  if (!confirm("Are you sure you want to delete this conversation?")) return;
+  if (!confirm("Delete this conversation session?")) return;
   try {
     await fetch(`/api/sessions/${sessionId}`, { method: "DELETE" });
-    showToast("Session deleted", "🗑️");
+    showToast("Session removed", "Deleted");
     if (currentSessionId === sessionId) {
       startNewChat();
     } else {
@@ -413,7 +394,7 @@ async function deleteSession(sessionId) {
   }
 }
 
-// --- Chat Sending & Message Handling ---
+// --- Query Processing ---
 async function handleSendMessage() {
   const text = messageInput.value.trim();
   if (!text) return;
@@ -421,14 +402,12 @@ async function handleSendMessage() {
   welcomeScreen.style.display = "none";
   errorBanner.style.display = "none";
 
-  // Append user bubble
   appendMessageToUI("user", text);
   messageInput.value = "";
   messageInput.style.height = "auto";
   btnSend.disabled = true;
 
-  // Append neural loading indicator bubble
-  const loadingBubble = appendNeuralLoadingBubble();
+  const loadingBubble = appendProcessingIndicator();
   scrollToBottom();
 
   const startTime = Date.now();
@@ -450,9 +429,9 @@ async function handleSendMessage() {
       const errJson = await res.json().catch(() => ({}));
       const detail = errJson.detail || {};
       throw {
-        title: detail.error || "Inference Request Failed",
-        message: detail.detail || `Server returned error HTTP ${res.status}`,
-        troubleshooting: detail.troubleshooting || "Check provider settings or switch to 'Mock' in the sidebar."
+        title: detail.error || "Inference Failed",
+        message: detail.detail || `HTTP error ${res.status}`,
+        troubleshooting: detail.troubleshooting || "Check engine settings or switch to Local Extractive in the sidebar."
       };
     }
 
@@ -462,17 +441,14 @@ async function handleSendMessage() {
     const durationSec = ((Date.now() - startTime) / 1000).toFixed(1);
     const providerWithDuration = `${data.provider_used} · ${durationSec}s`;
 
-    // Append assistant response
     appendMessageToUI("assistant", data.answer, data.sources, providerWithDuration, data.message_id);
-
-    // Refresh session sidebar list
     loadSessions();
   } catch (err) {
     loadingBubble.remove();
     showError(
-      err.title || "Provider / Inference Error",
+      err.title || "Inference Engine Error",
       err.message || String(err),
-      err.troubleshooting || "Switch provider to 'Mock' in the sidebar dropdown to run with zero dependencies."
+      err.troubleshooting || "Switch inference provider in the sidebar to run offline."
     );
   } finally {
     btnSend.disabled = false;
@@ -480,22 +456,20 @@ async function handleSendMessage() {
   }
 }
 
-// --- Neural Loading Animation ---
-function appendNeuralLoadingBubble() {
+// --- Processing Indicator ---
+function appendProcessingIndicator() {
   const row = document.createElement("div");
   row.className = "message-row assistant";
   row.innerHTML = `
-    <div class="message-avatar">🎙️</div>
-    <div class="message-body-wrapper">
-      <div class="neural-loading-box">
-        <div class="neural-status-step">
-          <div class="neural-wave-dots">
-            <span class="neural-dot"></span>
-            <span class="neural-dot"></span>
-            <span class="neural-dot"></span>
-          </div>
-          <span>Retrieving 573 vector chunks & synthesizing with ${currentProvider.toUpperCase()}...</span>
+    <div class="message-avatar">LT</div>
+    <div class="message-content-box">
+      <div class="processing-indicator">
+        <div class="processing-dots">
+          <span class="dot-proc"></span>
+          <span class="dot-proc"></span>
+          <span class="dot-proc"></span>
         </div>
+        <span>Searching 573 transcript chunks · Synthesizing with ${currentProvider.toUpperCase()}...</span>
       </div>
     </div>
   `;
@@ -508,7 +482,6 @@ function appendMessageToUI(role, content, sources = [], providerUsed = "", messa
   const row = document.createElement("div");
   row.className = `message-row ${role}`;
 
-  // Markdown parsing with fallback
   let renderedContent = content;
   if (window.marked) {
     try {
@@ -520,37 +493,34 @@ function appendMessageToUI(role, content, sources = [], providerUsed = "", messa
     renderedContent = escapeHtml(content);
   }
 
-  const avatar = role === "user" 
-    ? `<div class="message-avatar">U</div>` 
-    : `<div class="message-avatar">🎙️</div>`;
+  const avatarText = role === "user" ? "YOU" : "LT";
 
   let html = `
-    ${avatar}
-    <div class="message-body-wrapper">
+    <div class="message-avatar">${avatarText}</div>
+    <div class="message-content-box">
       <div class="message-bubble">${renderedContent}</div>
   `;
 
-  // Assistant additions: citations & action toolbar
   if (role === "assistant") {
     let sourcesHtml = "";
     if (sources && sources.length > 0) {
-      const itemsHtml = sources
+      const entriesHtml = sources
         .map((s) => {
           const ytUrl = s.youtube_url || "#";
           const matchPercent = s.relevance_score ? Math.round(s.relevance_score * 100) : 92;
-          const quoteSnippet = s.quote_text ? escapeHtml(s.quote_text.slice(0, 95)) + "..." : "";
+          const quoteSnippet = s.quote_text ? escapeHtml(s.quote_text.slice(0, 100)) + "..." : "";
 
           return `
-            <div class="source-pill-item">
-              <div class="source-pill-meta">
-                <div class="source-guest-row">
-                  <span class="source-guest">${escapeHtml(s.speaker)}</span>
-                  <span class="source-score-pill">${matchPercent}% match</span>
+            <div class="citation-entry">
+              <div class="citation-meta">
+                <div class="citation-author-row">
+                  <span class="citation-guest">${escapeHtml(s.speaker)}</span>
+                  <span class="citation-score">${matchPercent}% match</span>
                 </div>
-                <span class="source-ep">${escapeHtml(s.episode_title)}</span>
-                ${quoteSnippet ? `<span class="source-quote-preview">"${quoteSnippet}"</span>` : ""}
+                <span class="citation-episode">${escapeHtml(s.episode_title)}</span>
+                ${quoteSnippet ? `<span class="citation-snippet">"${quoteSnippet}"</span>` : ""}
               </div>
-              <a href="${escapeHtml(ytUrl)}" target="_blank" rel="noopener noreferrer" class="source-ts-link" title="Play on YouTube at exact timestamp">
+              <a href="${escapeHtml(ytUrl)}" target="_blank" rel="noopener noreferrer" class="citation-play-btn" title="Open YouTube timestamp">
                 ▶ ${escapeHtml(s.timestamp_range)}
               </a>
             </div>
@@ -559,32 +529,29 @@ function appendMessageToUI(role, content, sources = [], providerUsed = "", messa
         .join("");
 
       sourcesHtml = `
-        <div class="citations-box">
-          <div class="citations-header">
-            <span class="citations-title">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-              Verified Podcast Sources (${sources.length})
-            </span>
+        <div class="citations-appendix">
+          <div class="citations-header-row">
+            <span class="citations-label">REFERENCED PODCAST CITATIONS (${sources.length})</span>
           </div>
-          <div class="source-pill-list">
-            ${itemsHtml}
+          <div class="citation-list">
+            ${entriesHtml}
           </div>
         </div>
       `;
     }
 
-    const providerBadge = providerUsed ? `<span class="provider-stamp">⚡ ${escapeHtml(providerUsed)}</span>` : "";
+    const providerBadge = providerUsed ? `<span class="meta-stamp">${escapeHtml(providerUsed)}</span>` : "";
 
     html += `
         ${sourcesHtml}
-        <div class="message-actions-bar">
-          <button class="btn-action btn-copy-answer" title="Copy answer markdown">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        <div class="message-toolbar">
+          <button class="btn-tool-action btn-copy-answer" title="Copy response markdown">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
             <span>Copy</span>
           </button>
-          <button class="btn-ship30" data-msg-id="${messageId || ''}" title="Transform this answer into an executive Ship 30 for 30 atomic essay">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-            <span>Ship 30 for 30 Essay</span>
+          <button class="btn-ship30-action btn-ship30" data-msg-id="${messageId || ''}" title="Transform this response into a Ship 30 for 30 essay">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            <span>Ship 30 Essay</span>
           </button>
           ${providerBadge}
         </div>
@@ -596,12 +563,11 @@ function appendMessageToUI(role, content, sources = [], providerUsed = "", messa
 
   row.innerHTML = html;
 
-  // Event handlers
   const copyBtn = row.querySelector(".btn-copy-answer");
   if (copyBtn) {
     copyBtn.addEventListener("click", () => {
       navigator.clipboard.writeText(content);
-      showToast("Answer copied to clipboard!", "📋");
+      showToast("Response copied to clipboard", "Copied");
     });
   }
 
@@ -616,25 +582,24 @@ function appendMessageToUI(role, content, sources = [], providerUsed = "", messa
   scrollToBottom();
 }
 
-// --- Ship 30 for 30 Skill Trigger ---
+// --- Ship 30 for 30 Studio Trigger ---
 async function triggerShip30Skill(messageId, groundedAnswer, sources) {
-  // Open artifact panel in loading state
   artifactPanel.classList.add("open");
   toggleArtifactBtn.style.display = "inline-flex";
-  artifactTitle.textContent = "Synthesizing Ship 30 for 30 Essay...";
-  artifactWordCount.textContent = "Writing...";
-  if (readingTimePill) readingTimePill.textContent = "Calculating...";
-  if (artifactProviderPill) artifactProviderPill.textContent = `Via ${currentProvider}`;
+  artifactTitle.textContent = "Synthesizing Essay...";
+  artifactWordCount.textContent = "Analyzing...";
+  if (readingTimePill) readingTimePill.textContent = "Drafting...";
+  if (artifactProviderPill) artifactProviderPill.textContent = currentProvider;
 
   sandboxIframe.srcdoc = `
     <!DOCTYPE html>
-    <html><body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display:flex; flex-direction:column; align-items:center; justify-content:center; height:80vh; color:#94a3b8; text-align:center;">
-      <div style="font-size: 2rem; margin-bottom: 0.5rem; animation: pulse 1.5s infinite;">⚡</div>
-      <h3 style="color:#ffffff; margin-bottom: 0.5rem; font-size:1.1rem;">Engineering Ship 30 for 30 Atomic Essay</h3>
-      <p style="font-size:0.85rem; max-width:380px; line-height:1.5;">Applying the rigorous rubric: The Hook, 1 Core Idea, Rhythm, Bold Takeaways, and Tomorrow at 9 AM Protocol...</p>
+    <html><body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display:flex; flex-direction:column; align-items:center; justify-content:center; height:80vh; color:#6b7280; text-align:center;">
+      <div style="font-family: monospace; font-size: 0.85rem; margin-bottom: 0.5rem;">[ENGINEERING ATOMIC ESSAY]</div>
+      <h3 style="color:#111827; margin-bottom: 0.5rem; font-size:1.05rem;">Applying Ship 30 for 30 Rubric</h3>
+      <p style="font-size:0.8rem; max-width:360px; line-height:1.5;">Formatting The Hook, One Core Idea, Rhythm, and the Actionable Tomorrow at 9 AM Protocol...</p>
     </body></html>
   `;
-  rawMarkdownView.textContent = "Synthesizing publication-ready essay...";
+  rawMarkdownView.textContent = "Synthesizing publication draft...";
 
   try {
     const res = await fetch("/api/chat/ship30", {
@@ -649,7 +614,7 @@ async function triggerShip30Skill(messageId, groundedAnswer, sources) {
     });
 
     if (!res.ok) {
-      throw new Error("Ship 30 for 30 transformation failed");
+      throw new Error("Ship 30 transformation failed");
     }
 
     const data = await res.json();
@@ -659,37 +624,36 @@ async function triggerShip30Skill(messageId, groundedAnswer, sources) {
     artifactWordCount.textContent = `${data.word_count} words`;
     
     const readMinutes = Math.max(1, Math.round(data.word_count / 250));
-    if (readingTimePill) readingTimePill.textContent = `📖 ~${readMinutes} min read`;
-    if (artifactProviderPill) artifactProviderPill.textContent = `Via ${data.provider_used || currentProvider}`;
+    if (readingTimePill) readingTimePill.textContent = `${readMinutes} min read`;
+    if (artifactProviderPill) artifactProviderPill.textContent = data.provider_used || currentProvider;
 
-    // Inject styled HTML into sandboxed iframe
     sandboxIframe.srcdoc = data.essay_html;
     rawMarkdownView.textContent = data.essay_markdown;
 
-    showToast("Atomic essay generated successfully!", "🎉");
+    showToast("Atomic essay generated", "Essay ready");
   } catch (err) {
-    showError("Ship 30 for 30 Error", err.message, "Verify that backend services are active.");
+    showError("Ship 30 Error", err.message, "Verify backend service status.");
     artifactPanel.classList.remove("open");
   }
 }
 
-// --- Toast Notification Helper ---
-function showToast(message, icon = "✓") {
+// --- Toast Feedback ---
+function showToast(message, title = "") {
   if (!toastContainer) return;
   const toast = document.createElement("div");
   toast.className = "toast";
-  toast.innerHTML = `<span>${icon}</span><span>${escapeHtml(message)}</span>`;
+  toast.innerHTML = `<span style="color:var(--accent-orange)">■</span><span>${escapeHtml(message)}</span>`;
   toastContainer.appendChild(toast);
 
   setTimeout(() => {
-    toast.style.transition = "opacity 0.2s, transform 0.2s";
+    toast.style.transition = "opacity 0.15s, transform 0.15s";
     toast.style.opacity = "0";
-    toast.style.transform = "translateY(10px)";
-    setTimeout(() => toast.remove(), 200);
-  }, 2400);
+    toast.style.transform = "translateY(6px)";
+    setTimeout(() => toast.remove(), 150);
+  }, 2200);
 }
 
-// --- Helpers ---
+// --- Utilities ---
 function scrollToBottom() {
   messagesArea.scrollTop = messagesArea.scrollHeight;
 }
@@ -697,7 +661,7 @@ function scrollToBottom() {
 function showError(title, message, tip = "") {
   errorTitle.textContent = title;
   errorDesc.textContent = message;
-  errorTip.textContent = tip ? `Tip: ${tip}` : "";
+  errorTip.textContent = tip ? `Hint: ${tip}` : "";
   errorBanner.style.display = "flex";
 }
 
