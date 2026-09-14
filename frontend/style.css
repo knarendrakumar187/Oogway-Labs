@@ -185,11 +185,12 @@ body {
 }
 
 .section-label {
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-size: 0.65rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-muted);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .section-count {
@@ -208,10 +209,11 @@ body {
 }
 
 .dot-live {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   background: var(--accent-emerald);
   border-radius: 50%;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
 }
 
 /* Native-feel Segmented Select */
@@ -257,36 +259,41 @@ body {
 
 /* Guest Navigation List */
 .guest-nav-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  max-height: 180px;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.2rem;
+  max-height: 220px;
   overflow-y: auto;
+  padding-right: 0.2rem;
 }
 
 .guest-nav-item {
-  display: flex;
+  display: flex !important;
+  flex-direction: row !important;
   align-items: center;
   justify-content: space-between;
-  padding: 0.4rem 0.55rem;
+  padding: 0.45rem 0.6rem;
   border-radius: var(--radius-xs);
   background: transparent;
-  border: none;
+  border: 1px solid transparent;
   color: var(--text-secondary);
   font-size: 0.78rem;
   text-align: left;
   cursor: pointer;
   transition: all 0.12s ease;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .guest-nav-item:hover {
   background: var(--bg-card);
+  border-color: var(--border-subtle);
   color: var(--text-primary);
 }
 
 .guest-nav-item.active {
   background: var(--accent-orange-subtle);
+  border-color: rgba(234, 88, 12, 0.3);
   color: var(--accent-orange);
   font-weight: 600;
 }

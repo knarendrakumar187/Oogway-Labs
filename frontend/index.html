@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lenny's Growth Terminal — Curated Podcast Intelligence</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=20260914b" />
   <!-- Typography: Inter for UI, Newsreader for editorial long-form, JetBrains Mono for metadata -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -285,14 +285,13 @@
 
       <!-- Bottom Query Console -->
       <footer class="console-footer">
-        <form class="console-form" id="chat-form">
+        <form class="console-form" id="chat-form" novalidate>
           <div class="console-prompt-sym">›</div>
           <textarea
             id="message-input"
             class="console-input"
             rows="1"
             placeholder="Ask anything grounded in Lenny's Podcast (e.g., 'What did Elena Verna say about B2B growth?')..."
-            required
           ></textarea>
           <div class="console-actions">
             <span class="console-kbd-hint">Return ↵</span>
@@ -355,6 +354,6 @@
   <!-- Toast Notification -->
   <div class="toast-container" id="toast-container"></div>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=20260914b"></script>
 </body>
 </html>
