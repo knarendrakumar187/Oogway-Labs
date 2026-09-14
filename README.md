@@ -12,7 +12,7 @@
 |---------|-------------|
 | **Grounded chat** | Answers sourced from 573 indexed chunks across 18 Lenny episodes |
 | **Citations** | Every response links back to speaker, episode, and timestamp |
-| **Multi-provider LLM** | Switch between Ollama (local), OpenAI, Anthropic, or Mock (no key needed) |
+| **Multi-provider LLM** | Switch between Groq (fast free cloud), Ollama (local), OpenAI, Anthropic, or Mock (no key needed) |
 | **Ship 30 for 30 skill** | Transforms any grounded answer into a publish-ready atomic essay |
 | **Session history** | Persistent conversation sessions stored in SQLite (or PostgreSQL) |
 | **Zero-config start** | Mock provider works out-of-the-box — no API keys required |
@@ -31,9 +31,10 @@
 │              FastAPI Backend  :8000                   │
 │  ┌──────────┐  ┌────────────┐  ┌───────────────────┐ │
 │  │ RAG      │  │ LLM Router │  │ Ship30 Skill      │ │
-│  │ (cosine) │  │ Ollama /   │  │ (essay generator) │ │
-│  │ 573 chks │  │ OpenAI /   │  │                   │ │
-│  └──────────┘  │ Anthropic /│  └───────────────────┘ │
+│  │ (cosine) │  │ Groq /     │  │ (essay generator) │ │
+│  │ 573 chks │  │ Ollama /   │  │                   │ │
+│  └──────────┘  │ OpenAI /   │  └───────────────────┘ │
+│                │ Anthropic /│                         │
 │                │ Mock       │                         │
 │                └────────────┘                         │
 │  ┌──────────────────────────────────────────────────┐ │
@@ -114,10 +115,14 @@ Open **http://localhost:8000**.
 Copy `.env.example` to `.env` and adjust as needed:
 
 ```env
-# LLM Provider: mock | ollama | openai | anthropic
-LLM_PROVIDER=mock
+# LLM Provider: groq | mock | ollama | openai | anthropic
+LLM_PROVIDER=groq
 
-# Ollama (local model)
+# Groq (fast cloud inference — recommended for zero local setup)
+GROQ_API_KEY=gsk_...
+GROQ_MODEL=groq/compound-mini
+
+# Ollama (local model — optional)
 OLLAMA_BASE_URL=http://localhost:11434
 OLLAMA_MODEL=llama3.1:8b
 
