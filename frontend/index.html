@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Lenny Growth Assistant</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <!-- Marked.js for markdown rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Left Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <div class="brand-icon">🎙️</div>
+          <div class="brand-text">
+            <h2>Lenny Assistant</h2>
+            <span class="badge-fde">Growth Intelligence</span>
+          </div>
+        </div>
+        <button class="btn-new-chat" id="btn-new-chat" title="Start new session">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          New Chat
+        </button>
+      </div>
+
+      <!-- Provider Selector Card -->
+      <div class="provider-card">
+        <div class="provider-label-row">
+          <span class="card-label">Active LLM Provider</span>
+          <span class="status-dot" id="provider-dot"></span>
+        </div>
+        <select id="provider-select" class="provider-dropdown">
+          <option value="ollama">Ollama (Local laptop default)</option>
+          <option value="mock" selected>Mock / Extractive (Zero-setup evaluation)</option>
+          <option value="openai">OpenAI (gpt-4o-mini)</option>
+          <option value="anthropic">Anthropic (Claude 3.5 Sonnet)</option>
+        </select>
+        <div class="provider-hint" id="provider-hint">Extractive synthesis from verified transcripts</div>
+      </div>
+
+      <!-- Session List -->
+      <div class="session-section">
+        <div class="session-section-title">Conversations</div>
+        <div class="session-list" id="session-list">
+          <div class="session-empty">No conversations yet</div>
+        </div>
+      </div>
+
+      <!-- Corpus Status Footer -->
+      <div class="sidebar-footer">
+        <div class="corpus-stat">
+          <span>Indexed Corpus:</span>
+          <strong>18 Episodes (573 Chunks)</strong>
+        </div>
+        <div class="db-stat" id="db-stat-label">DB: Connecting...</div>
+      </div>
+    </aside>
+
+    <!-- Center Chat Area -->
+    <main class="chat-container">
+      <header class="chat-header">
+        <div class="header-left">
+          <h1 id="active-session-title">New Conversation</h1>
+          <span class="grounding-badge">🔒 100% Grounded in Lenny's Podcast</span>
+        </div>
+        <div class="header-right">
+          <button class="btn-secondary" id="toggle-artifact-btn" style="display:none;">
+            <span>📄 View Artifact</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Message History Scroll Area -->
+      <div class="messages-area" id="messages-area">
+        <!-- Welcome Screen shown when no messages -->
+        <div class="welcome-screen" id="welcome-screen">
+          <div class="welcome-badge">Lenny's Podcast Growth Advisor</div>
+          <h2>Grounded answers from the world's top product & growth experts</h2>
+          <p class="welcome-desc">
+            Answers are strictly synthesized from transcripts with timestamped video citations. Click "Ship 30 for 30" on any answer to transform it into a formatted essay.
+          </p>
+
+          <div class="prompt-grid">
+            <button class="prompt-card" data-prompt="What are the 10 growth tactics that never work according to Elena Verna?">
+              <div class="prompt-speaker">Elena Verna</div>
+              <div class="prompt-title">10 Growth Tactics That Never Work</div>
+              <div class="prompt-preview">Why website redesigns and premature growth squads fail...</div>
+            </button>
+
+            <button class="prompt-card" data-prompt="How does Brian Balfour explain the Four Fits framework for sustainable growth?">
+              <div class="prompt-speaker">Brian Balfour</div>
+              <div class="prompt-title">The Four Fits Growth Framework</div>
+              <div class="prompt-preview">Market-Product, Product-Channel, Channel-Model, Model-Market...</div>
+            </button>
+
+            <button class="prompt-card" data-prompt="How does Casey Winters think about retention loops vs acquisition?">
+              <div class="prompt-speaker">Casey Winters</div>
+              <div class="prompt-title">Retention Loops at Scale</div>
+              <div class="prompt-preview">Why top-of-funnel acquisition without retention loops fails...</div>
+            </button>
+
+            <button class="prompt-card" data-prompt="What is Shreyas Doshi's LNO framework for PM time and task prioritization?">
+              <div class="prompt-speaker">Shreyas Doshi</div>
+              <div class="prompt-title">The LNO Prioritization Framework</div>
+              <div class="prompt-preview">Leverage, Neutral, and Overhead tasks for high-agency PMs...</div>
+            </button>
+          </div>
+        </div>
+
+        <div class="message-feed" id="message-feed"></div>
+      </div>
+
+      <!-- Error notification banner -->
+      <div class="error-banner" id="error-banner" style="display:none;">
+        <div class="error-content">
+          <div class="error-title" id="error-title">Error</div>
+          <div class="error-desc" id="error-desc"></div>
+          <div class="error-tip" id="error-tip"></div>
+        </div>
+        <button class="btn-dismiss-error" id="btn-dismiss-error">Dismiss</button>
+      </div>
+
+      <!-- Input Bar -->
+      <footer class="chat-input-bar">
+        <form class="input-form" id="chat-form">
+          <textarea
+            id="message-input"
+            class="chat-textarea"
+            rows="1"
+            placeholder="Ask about growth loops, PM frameworks, pricing, or retention..."
+            required
+          ></textarea>
+          <button type="submit" class="btn-send" id="btn-send" title="Send message">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+          </button>
+        </form>
+        <div class="input-disclaimer">
+          Every claim cites exact episode timestamps. If ungrounded, the assistant explicitly declines to guess.
+        </div>
+      </footer>
+    </main>
+
+    <!-- Right Panel: Sandboxed Artifact Viewer -->
+    <aside class="artifact-panel" id="artifact-panel">
+      <div class="artifact-header">
+        <div class="artifact-title-box">
+          <span class="artifact-kicker">Ship 30 for 30 Atomic Essay</span>
+          <h3 id="artifact-title">Artifact Preview</h3>
+          <div class="artifact-stats">
+            <span id="artifact-word-count">0 words</span>
+            <span class="sandbox-pill" title="Rendered in sandboxed iframe with scripts blocked">🔒 Sandbox Secured</span>
+          </div>
+        </div>
+        <div class="artifact-controls">
+          <button class="btn-icon" id="btn-copy-markdown" title="Copy Markdown">
+            📋 Copy MD
+          </button>
+          <button class="btn-icon" id="btn-close-artifact" title="Close Viewer">
+            ✕
+          </button>
+        </div>
+      </div>
+
+      <div class="artifact-tabs">
+        <button class="tab-btn active" id="tab-btn-visual">Rendered Artifact</button>
+        <button class="tab-btn" id="tab-btn-raw">Raw Markdown</button>
+      </div>
+
+      <div class="artifact-body">
+        <!-- Sandboxed iframe: blocks JavaScript execution to guarantee zero XSS -->
+        <iframe
+          id="sandbox-iframe"
+          class="sandbox-frame"
+          sandbox="allow-same-origin"
+          title="Sandboxed Artifact Preview"
+        ></iframe>
+
+        <!-- Raw Markdown view (hidden by default) -->
+        <pre class="raw-markdown-view" id="raw-markdown-view" style="display:none;"></pre>
+      </div>
+    </aside>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
