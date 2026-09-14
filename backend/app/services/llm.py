@@ -350,8 +350,10 @@ def generate_llm_response(
         return text, "mock"
 
     elif active_provider == "ollama":
-        text = call_ollama(user_prompt, SYSTEM_PROMPT)
-        return text, f"ollama ({settings.OLLAMA_MODEL})"
+        base_url = settings.OLLAMA_BASE_URL.rstrip("/")
+        active_model = resolve_ollama_model(base_url)
+        text = call_ollama(user_prompt, SYSTEM_PROMPT, active_model)
+        return text, f"ollama ({active_model})"
 
     elif active_provider == "openai":
         text = call_openai(user_prompt, SYSTEM_PROMPT)
