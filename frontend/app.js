@@ -141,7 +141,10 @@ async function initHealthCheck() {
 
     // Populate active provider
     if (data.available_providers) {
-      if (data.available_providers.ollama) {
+      if (data.available_providers.groq) {
+        providerSelect.value = "groq";
+        currentProvider = "groq";
+      } else if (data.available_providers.ollama) {
         providerSelect.value = "ollama";
         currentProvider = "ollama";
       } else {
@@ -170,6 +173,9 @@ function updateProviderHint() {
   } else if (currentProvider === "anthropic") {
     providerHint.textContent = "Anthropic Cloud API (Claude 3.5 Sonnet)";
     providerDot.className = "status-dot";
+  } else if (currentProvider === "groq") {
+    providerHint.textContent = "⚡ Groq Cloud API (llama3-8b-8192 · Ultra-fast free tier)";
+    providerDot.className = "status-dot active";
   }
 }
 

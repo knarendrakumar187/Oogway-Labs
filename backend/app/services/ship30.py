@@ -6,6 +6,7 @@ from backend.app.services.llm import (
     call_ollama,
     call_openai,
     call_anthropic,
+    call_groq,
     ProviderError
 )
 
@@ -359,6 +360,9 @@ def execute_ship30_skill(
         elif active_provider == "anthropic":
             content = call_anthropic(user_instruction, SHIP30_SYSTEM_RUBRIC)
             used = f"anthropic ({settings.ANTHROPIC_MODEL})"
+        elif active_provider == "groq":
+            content = call_groq(user_instruction, SHIP30_SYSTEM_RUBRIC)
+            used = f"groq ({settings.GROQ_MODEL})"
         else:
             return generate_mock_ship30_essay(grounded_answer, sources, topic)
 

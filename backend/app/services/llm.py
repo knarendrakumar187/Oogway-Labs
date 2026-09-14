@@ -161,6 +161,54 @@ def call_anthropic(prompt: str, system_prompt: str, model: Optional[str] = None)
     except Exception as e:
         raise ProviderError(code="ANTHROPIC_ERROR", message=f"Anthropic request failed: {e}")
 
+def call_groq(prompt: str, system_prompt: str, model: Optional[str] = None) -> str:
+    """Call Groq's OpenAI-compatible inference API (https://api.groq.com/openai/v1)."""
+    api_key = settings.GROQ_API_KEY
+    if not api_key or api_key == "":
+        raise ProviderError(
+            code="GROQ_KEY_MISSING",
+            message="Groq API key is missing or not configured.",
+            troubleshooting="Set GROQ_API_KEY=gsk_... in your .env file. Get a free key at https://console.groq.com/"
+        )
+
+    target_model = model or settings.GROQ_MODEL
+    url = "https://api.groq.com/openai/v1/chat/completions"
+
+    payload = {
+        "model": target_model,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": prompt}
+        ],
+        "temperature": 0.2,
+        "max_tokens": 1500
+    }
+
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        }
+    )
+
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            return data["choices"][0]["message"]["content"]
+    except urllib.error.HTTPError as e:
+        err_body = e.read().decode("utf-8", errors="ignore")
+        logger.error("Groq HTTP %d: %s", e.code, err_body)
+        raise ProviderError(
+            code=f"GROQ_HTTP_{e.code}",
+            message=f"Groq API returned error {e.code}: {e.reason}",
+            troubleshooting="Check your GROQ_API_KEY at https://console.groq.com/ and verify it has not expired."
+        )
+    except Exception as e:
+        raise ProviderError(code="GROQ_ERROR", message=f"Groq request failed: {e}")
+
 def call_mock_synthesis(prompt: str, retrieved_chunks: List[Dict[str, Any]], is_grounded: bool) -> str:
     """
     Extractive synthesis provider for zero-dependency offline demo evaluation.
@@ -268,6 +316,10 @@ def generate_llm_response(
         text = call_anthropic(user_prompt, SYSTEM_PROMPT)
         return text, f"anthropic ({settings.ANTHROPIC_MODEL})"
 
+    elif active_provider == "groq":
+        text = call_groq(user_prompt, SYSTEM_PROMPT)
+        return text, f"groq ({settings.GROQ_MODEL})"
+
     else:
         # Fallback to mock with notice
         logger.warning("Unrecognized provider '%s'. Defaulting to mock.", active_provider)
@@ -288,10 +340,12 @@ def get_available_providers() -> Dict[str, bool]:
 
     openai_ok = bool(settings.OPENAI_API_KEY and not settings.OPENAI_API_KEY.startswith("sk-placeholder") and len(settings.OPENAI_API_KEY) > 10)
     anthropic_ok = bool(settings.ANTHROPIC_API_KEY and len(settings.ANTHROPIC_API_KEY) > 10)
+    groq_ok = bool(settings.GROQ_API_KEY and settings.GROQ_API_KEY.startswith("gsk_") and len(settings.GROQ_API_KEY) > 10)
 
     return {
         "ollama": ollama_ok,
         "openai": openai_ok,
         "anthropic": anthropic_ok,
+        "groq": groq_ok,
         "mock": True  # Always available
     }

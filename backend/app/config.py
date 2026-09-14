@@ -10,7 +10,7 @@ class Settings(BaseSettings):
         extra="ignore"
     )
 
-    # LLM Provider Configuration ("ollama", "openai", "anthropic", "mock")
+    # LLM Provider Configuration ("ollama", "openai", "anthropic", "groq", "mock")
     LLM_PROVIDER: str = "ollama"
     
     # Ollama settings (laptop local inference default)
@@ -25,6 +25,10 @@ class Settings(BaseSettings):
     # Anthropic settings
     ANTHROPIC_API_KEY: Optional[str] = None
     ANTHROPIC_MODEL: str = "claude-3-5-sonnet-20241022"
+
+    # Groq settings (fast cloud inference — free tier available)
+    GROQ_API_KEY: Optional[str] = None
+    GROQ_MODEL: str = "groq/compound-mini"
     
     # Database configuration
     DATABASE_URL: str = "postgresql://lenny:growth@localhost:5432/lenny_growth"
