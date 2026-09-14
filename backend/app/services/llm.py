@@ -1,4 +1,5 @@
 import json
+import time
 import logging
 import urllib.request
 import urllib.error
@@ -194,20 +195,25 @@ def call_groq(prompt: str, system_prompt: str, model: Optional[str] = None) -> s
         }
     )
 
-    try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            return data["choices"][0]["message"]["content"]
-    except urllib.error.HTTPError as e:
-        err_body = e.read().decode("utf-8", errors="ignore")
-        logger.error("Groq HTTP %d: %s", e.code, err_body)
-        raise ProviderError(
-            code=f"GROQ_HTTP_{e.code}",
-            message=f"Groq API returned error {e.code}: {e.reason}",
-            troubleshooting="Check your GROQ_API_KEY at https://console.groq.com/ and verify it has not expired."
-        )
-    except Exception as e:
-        raise ProviderError(code="GROQ_ERROR", message=f"Groq request failed: {e}")
+    for attempt in range(2):
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                return data["choices"][0]["message"]["content"]
+        except urllib.error.HTTPError as e:
+            if e.code == 429 and attempt == 0:
+                logger.warning("Groq rate limit (429) hit, retrying in 2 seconds...")
+                time.sleep(2.0)
+                continue
+            err_body = e.read().decode("utf-8", errors="ignore")
+            logger.error("Groq HTTP %d: %s", e.code, err_body)
+            raise ProviderError(
+                code=f"GROQ_HTTP_{e.code}",
+                message=f"Groq API returned error {e.code}: {e.reason}",
+                troubleshooting="Groq free tier rate limit reached. Wait a few seconds or switch provider in the sidebar."
+            )
+        except Exception as e:
+            raise ProviderError(code="GROQ_ERROR", message=f"Groq request failed: {e}")
 
 def call_mock_synthesis(prompt: str, retrieved_chunks: List[Dict[str, Any]], is_grounded: bool) -> str:
     """

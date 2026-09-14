@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The Lenny Growth Assistant</title>
+  <title>Oogway Labs — Lenny Growth Intelligence</title>
   <link rel="stylesheet" href="style.css" />
-  <!-- Google Fonts -->
+  <!-- Google Fonts: Plus Jakarta Sans for UI + Merriweather for essays + JetBrains Mono for code -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Merriweather:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <!-- Marked.js for markdown rendering -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
@@ -18,49 +18,105 @@
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
         <div class="brand">
-          <div class="brand-icon">🎙️</div>
+          <div class="brand-avatar">
+            <span class="brand-symbol">🦉</span>
+            <span class="brand-pulse"></span>
+          </div>
           <div class="brand-text">
-            <h2>Lenny Assistant</h2>
-            <span class="badge-fde">Growth Intelligence</span>
+            <div class="brand-title-row">
+              <h2>Oogway Labs</h2>
+              <span class="version-tag">v1.2</span>
+            </div>
+            <span class="badge-fde">Lenny Growth Intelligence</span>
           </div>
         </div>
-        <button class="btn-new-chat" id="btn-new-chat" title="Start new session">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          New Chat
+        <button class="btn-new-chat" id="btn-new-chat" title="Start new session (Ctrl + K)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <span>New Session</span>
+          <kbd class="shortcut-kbd">⌘N</kbd>
         </button>
       </div>
 
       <!-- Provider Selector Card -->
       <div class="provider-card">
         <div class="provider-label-row">
-          <span class="card-label">Active LLM Provider</span>
-          <span class="status-dot" id="provider-dot"></span>
+          <div class="card-label-wrap">
+            <span class="pulse-indicator" id="provider-pulse"></span>
+            <span class="card-label">Active Inference</span>
+          </div>
+          <span class="status-badge" id="provider-status-badge">Ready</span>
         </div>
-        <select id="provider-select" class="provider-dropdown">
-          <option value="ollama">Ollama (Local laptop default)</option>
-          <option value="mock" selected>Mock / Extractive (Zero-setup evaluation)</option>
-          <option value="openai">OpenAI (gpt-4o-mini)</option>
-          <option value="anthropic">Anthropic (Claude 3.5 Sonnet)</option>
-          <option value="groq">⚡ Groq (llama3-8b-8192 · Fast free tier)</option>
-        </select>
-        <div class="provider-hint" id="provider-hint">Extractive synthesis from verified transcripts</div>
+        <div class="select-wrapper">
+          <select id="provider-select" class="provider-dropdown">
+            <option value="groq" selected>⚡ Groq (compound-mini · Ultra-fast)</option>
+            <option value="mock">🛡️ Mock / Extractive (Zero-dep evaluation)</option>
+            <option value="ollama">💻 Ollama (Local laptop model)</option>
+            <option value="openai">🌐 OpenAI (gpt-4o-mini)</option>
+            <option value="anthropic">🧠 Anthropic (Claude 3.5 Sonnet)</option>
+          </select>
+          <svg class="select-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+        <div class="provider-hint" id="provider-hint">
+          Sub-second cloud inference powered by Groq LPU
+        </div>
+      </div>
+
+      <!-- Quick Guest Filter Section -->
+      <div class="guests-filter-section">
+        <div class="section-title-row">
+          <span class="sidebar-section-title">Explore by Guest</span>
+          <span class="count-pill">18</span>
+        </div>
+        <div class="guest-chips-scroll" id="guest-chips-container">
+          <button class="guest-chip active" data-guest="all">All Guests</button>
+          <button class="guest-chip" data-guest="Elena Verna">Elena Verna</button>
+          <button class="guest-chip" data-guest="Marty Cagan">Marty Cagan</button>
+          <button class="guest-chip" data-guest="Brian Balfour">Brian Balfour</button>
+          <button class="guest-chip" data-guest="Shreyas Doshi">Shreyas Doshi</button>
+          <button class="guest-chip" data-guest="Casey Winters">Casey Winters</button>
+          <button class="guest-chip" data-guest="Annie Duke">Annie Duke</button>
+          <button class="guest-chip" data-guest="Sean Ellis">Sean Ellis</button>
+          <button class="guest-chip" data-guest="Brian Chesky">Brian Chesky</button>
+          <button class="guest-chip" data-guest="April Dunford">April Dunford</button>
+        </div>
       </div>
 
       <!-- Session List -->
       <div class="session-section">
-        <div class="session-section-title">Conversations</div>
+        <div class="section-title-row">
+          <span class="sidebar-section-title">Saved Conversations</span>
+          <span class="session-count-tag" id="session-count-tag">0</span>
+        </div>
         <div class="session-list" id="session-list">
-          <div class="session-empty">No conversations yet</div>
+          <div class="session-empty">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <span>No conversation history</span>
+          </div>
         </div>
       </div>
 
       <!-- Corpus Status Footer -->
       <div class="sidebar-footer">
-        <div class="corpus-stat">
-          <span>Indexed Corpus:</span>
-          <strong>18 Episodes (573 Chunks)</strong>
+        <div class="metric-row">
+          <div class="metric-item">
+            <span class="metric-label">Corpus</span>
+            <span class="metric-val">18 Episodes</span>
+          </div>
+          <div class="metric-divider"></div>
+          <div class="metric-item">
+            <span class="metric-label">Vectors</span>
+            <span class="metric-val">573 Chunks</span>
+          </div>
+          <div class="metric-divider"></div>
+          <div class="metric-item">
+            <span class="metric-label">Storage</span>
+            <span class="metric-val" id="db-stat-short">SQLite</span>
+          </div>
         </div>
-        <div class="db-stat" id="db-stat-label">DB: Connecting...</div>
+        <div class="system-meta-row">
+          <span class="system-dot-live"></span>
+          <span class="system-meta-text" id="db-stat-label">Vector Store Connected · all-MiniLM-L6-v2</span>
+        </div>
       </div>
     </aside>
 
@@ -68,12 +124,26 @@
     <main class="chat-container">
       <header class="chat-header">
         <div class="header-left">
-          <h1 id="active-session-title">New Conversation</h1>
-          <span class="grounding-badge">🔒 100% Grounded in Lenny's Podcast</span>
+          <div class="chat-title-group">
+            <h1 id="active-session-title">Executive Growth Advisor</h1>
+            <div class="header-badges">
+              <span class="grounding-badge">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                100% Grounded in Lenny's Podcast
+              </span>
+              <span class="latency-badge" id="active-provider-pill">⚡ Groq Cloud LPU</span>
+            </div>
+          </div>
         </div>
         <div class="header-right">
-          <button class="btn-secondary" id="toggle-artifact-btn" style="display:none;">
-            <span>📄 View Artifact</span>
+          <button class="btn-header-action" id="btn-clear-chat" title="Clear messages">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            <span>Clear</span>
+          </button>
+          <button class="btn-header-action primary-glow" id="toggle-artifact-btn" style="display:none;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            <span>Ship 30 Essay</span>
+            <span class="badge-dot-unread"></span>
           </button>
         </div>
       </header>
@@ -82,35 +152,103 @@
       <div class="messages-area" id="messages-area">
         <!-- Welcome Screen shown when no messages -->
         <div class="welcome-screen" id="welcome-screen">
-          <div class="welcome-badge">Lenny's Podcast Growth Advisor</div>
-          <h2>Grounded answers from the world's top product & growth experts</h2>
-          <p class="welcome-desc">
-            Answers are strictly synthesized from transcripts with timestamped video citations. Click "Ship 30 for 30" on any answer to transform it into a formatted essay.
-          </p>
+          <div class="welcome-header">
+            <div class="hero-chip">
+              <span class="chip-sparkle">✨</span>
+              <span>Vector RAG with Verifiable Video Citations</span>
+            </div>
+            <h2>The Growth Intelligence Engine for Tech Leaders</h2>
+            <p class="welcome-desc">
+              Every insight is mathematically retrieved via cosine similarity over 573 indexed segments across Lenny Rachitsky's most iconic interviews. No hallucinations—strictly grounded with direct timestamp links.
+            </p>
+          </div>
 
-          <div class="prompt-grid">
-            <button class="prompt-card" data-prompt="What are the 10 growth tactics that never work according to Elena Verna?">
-              <div class="prompt-speaker">Elena Verna</div>
+          <!-- Category Tabs for Starter Prompts -->
+          <div class="prompt-category-tabs">
+            <button class="cat-tab active" data-cat="all">🔥 All Featured</button>
+            <button class="cat-tab" data-cat="growth">📈 Growth Loops & PLG</button>
+            <button class="cat-tab" data-cat="discovery">🎯 Product Discovery</button>
+            <button class="cat-tab" data-cat="pm-craft">🧠 PM Leadership</button>
+            <button class="cat-tab" data-cat="retention">🔄 Retention & Strategy</button>
+          </div>
+
+          <div class="prompt-grid" id="prompt-grid">
+            <button class="prompt-card" data-category="growth" data-prompt="What are the 10 growth tactics that never work according to Elena Verna?">
+              <div class="prompt-card-top">
+                <span class="prompt-speaker-badge">Elena Verna · Miro / Amplitude</span>
+                <span class="prompt-tag">PLG & Loops</span>
+              </div>
               <div class="prompt-title">10 Growth Tactics That Never Work</div>
-              <div class="prompt-preview">Why website redesigns and premature growth squads fail...</div>
+              <div class="prompt-preview">Why website redesigns, premature growth teams, and full-time traps kill velocity...</div>
+              <div class="prompt-card-footer">
+                <span>Ep #42 · ~1h 34m</span>
+                <span class="prompt-arrow">→</span>
+              </div>
             </button>
 
-            <button class="prompt-card" data-prompt="How does Brian Balfour explain the Four Fits framework for sustainable growth?">
-              <div class="prompt-speaker">Brian Balfour</div>
-              <div class="prompt-title">The Four Fits Growth Framework</div>
-              <div class="prompt-preview">Market-Product, Product-Channel, Channel-Model, Model-Market...</div>
+            <button class="prompt-card" data-category="discovery" data-prompt="What did Marty Cagan say about product discovery vs optimization and empowered PMs?">
+              <div class="prompt-card-top">
+                <span class="prompt-speaker-badge">Marty Cagan · SVPG</span>
+                <span class="prompt-tag">Product Discovery</span>
+              </div>
+              <div class="prompt-title">Discovery vs. Optimization Theater</div>
+              <div class="prompt-preview">Why A/B test tweaks aren't discovery, and how empowered PMs validate real market bets...</div>
+              <div class="prompt-card-footer">
+                <span>Ep #12 · ~1h 12m</span>
+                <span class="prompt-arrow">→</span>
+              </div>
             </button>
 
-            <button class="prompt-card" data-prompt="How does Casey Winters think about retention loops vs acquisition?">
-              <div class="prompt-speaker">Casey Winters</div>
-              <div class="prompt-title">Retention Loops at Scale</div>
-              <div class="prompt-preview">Why top-of-funnel acquisition without retention loops fails...</div>
+            <button class="prompt-card" data-category="growth" data-prompt="How does Brian Balfour explain the Four Fits framework for sustainable growth?">
+              <div class="prompt-card-top">
+                <span class="prompt-speaker-badge">Brian Balfour · Reforge / HubSpot</span>
+                <span class="prompt-tag">Four Fits Model</span>
+              </div>
+              <div class="prompt-title">The Four Fits Growth Architecture</div>
+              <div class="prompt-preview">Market-Product, Product-Channel, Channel-Model, and Model-Market alignment...</div>
+              <div class="prompt-card-footer">
+                <span>Ep #18 · ~1h 28m</span>
+                <span class="prompt-arrow">→</span>
+              </div>
             </button>
 
-            <button class="prompt-card" data-prompt="What is Shreyas Doshi's LNO framework for PM time and task prioritization?">
-              <div class="prompt-speaker">Shreyas Doshi</div>
-              <div class="prompt-title">The LNO Prioritization Framework</div>
-              <div class="prompt-preview">Leverage, Neutral, and Overhead tasks for high-agency PMs...</div>
+            <button class="prompt-card" data-category="pm-craft" data-prompt="What is Shreyas Doshi's LNO framework for PM time and task prioritization?">
+              <div class="prompt-card-top">
+                <span class="prompt-speaker-badge">Shreyas Doshi · Stripe / Twitter</span>
+                <span class="prompt-tag">PM Prioritization</span>
+              </div>
+              <div class="prompt-title">The LNO Prioritization Protocol</div>
+              <div class="prompt-preview">How top 1% PMs separate Leverage, Neutral, and Overhead work to prevent burnout...</div>
+              <div class="prompt-card-footer">
+                <span>Ep #08 · ~1h 45m</span>
+                <span class="prompt-arrow">→</span>
+              </div>
+            </button>
+
+            <button class="prompt-card" data-category="retention" data-prompt="How does Casey Winters think about retention loops vs top-of-funnel acquisition?">
+              <div class="prompt-card-top">
+                <span class="prompt-speaker-badge">Casey Winters · Pinterest / Eventbrite</span>
+                <span class="prompt-tag">Retention Loops</span>
+              </div>
+              <div class="prompt-title">Retention Loops at Global Scale</div>
+              <div class="prompt-preview">Why top-of-funnel without compounding retention loops is a leaky bucket...</div>
+              <div class="prompt-card-footer">
+                <span>Ep #29 · ~1h 19m</span>
+                <span class="prompt-arrow">→</span>
+              </div>
+            </button>
+
+            <button class="prompt-card" data-category="pm-craft" data-prompt="What does Annie Duke teach about decision quality vs outcome bias in product leadership?">
+              <div class="prompt-card-top">
+                <span class="prompt-speaker-badge">Annie Duke · Thinking in Bets</span>
+                <span class="prompt-tag">Decision Quality</span>
+              </div>
+              <div class="prompt-title">Thinking in Bets & Resulting</div>
+              <div class="prompt-preview">How to evaluate product decisions under uncertainty without falling into resulting traps...</div>
+              <div class="prompt-card-footer">
+                <span>Ep #36 · ~1h 22m</span>
+                <span class="prompt-arrow">→</span>
+              </div>
             </button>
           </div>
         </div>
@@ -120,8 +258,9 @@
 
       <!-- Error notification banner -->
       <div class="error-banner" id="error-banner" style="display:none;">
+        <div class="error-icon">⚠️</div>
         <div class="error-content">
-          <div class="error-title" id="error-title">Error</div>
+          <div class="error-title" id="error-title">Inference Error</div>
           <div class="error-desc" id="error-desc"></div>
           <div class="error-tip" id="error-tip"></div>
         </div>
@@ -131,19 +270,26 @@
       <!-- Input Bar -->
       <footer class="chat-input-bar">
         <form class="input-form" id="chat-form">
+          <div class="input-prefix-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </div>
           <textarea
             id="message-input"
             class="chat-textarea"
             rows="1"
-            placeholder="Ask about growth loops, PM frameworks, pricing, or retention..."
+            placeholder="Ask anything across 18 Lenny's Podcast episodes (e.g., 'What did Elena Verna say about PLG?')..."
             required
           ></textarea>
-          <button type="submit" class="btn-send" id="btn-send" title="Send message">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-          </button>
+          <div class="input-actions-right">
+            <span class="input-shortcut-hint">Press <strong>Enter ↵</strong></span>
+            <button type="submit" class="btn-send" id="btn-send" title="Send query (Enter)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+          </div>
         </form>
-        <div class="input-disclaimer">
-          Every claim cites exact episode timestamps. If ungrounded, the assistant explicitly declines to guess.
+        <div class="input-disclaimer-row">
+          <span>🔒 <strong>Strict Grounding:</strong> Verifiable YouTube timestamps cited for every claim.</span>
+          <span>⚡ <strong>Ship 30 Skill:</strong> 1-click transformation into 1,000+ word atomic essays.</span>
         </div>
       </footer>
     </main>
@@ -152,26 +298,39 @@
     <aside class="artifact-panel" id="artifact-panel">
       <div class="artifact-header">
         <div class="artifact-title-box">
-          <span class="artifact-kicker">Ship 30 for 30 Atomic Essay</span>
-          <h3 id="artifact-title">Artifact Preview</h3>
+          <div class="artifact-tag-row">
+            <span class="artifact-kicker">Ship 30 for 30 Skill</span>
+            <span class="reading-time-pill" id="reading-time-pill">📖 ~4 min read</span>
+            <span class="sandbox-pill" title="Sandboxed iframe: scripts blocked to guarantee security">🔒 Sandbox Safe</span>
+          </div>
+          <h3 id="artifact-title">The Atomic Essay</h3>
           <div class="artifact-stats">
-            <span id="artifact-word-count">0 words</span>
-            <span class="sandbox-pill" title="Rendered in sandboxed iframe with scripts blocked">🔒 Sandbox Secured</span>
+            <span class="stat-pill" id="artifact-word-count">1,194 words</span>
+            <span class="stat-pill" id="artifact-provider-pill">Via Groq</span>
           </div>
         </div>
         <div class="artifact-controls">
-          <button class="btn-icon" id="btn-copy-markdown" title="Copy Markdown">
-            📋 Copy MD
+          <button class="btn-tool" id="btn-copy-markdown" title="Copy Markdown to clipboard">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            <span>Copy MD</span>
           </button>
-          <button class="btn-icon" id="btn-close-artifact" title="Close Viewer">
-            ✕
+          <button class="btn-tool" id="btn-download-html" title="Download standalone HTML document">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            <span>Export</span>
           </button>
+          <button class="btn-tool-close" id="btn-close-artifact" title="Close Panel">✕</button>
         </div>
       </div>
 
       <div class="artifact-tabs">
-        <button class="tab-btn active" id="tab-btn-visual">Rendered Artifact</button>
-        <button class="tab-btn" id="tab-btn-raw">Raw Markdown</button>
+        <button class="tab-btn active" id="tab-btn-visual">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          Formatted Reading View
+        </button>
+        <button class="tab-btn" id="tab-btn-raw">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+          Raw Markdown
+        </button>
       </div>
 
       <div class="artifact-body">
@@ -183,11 +342,14 @@
           title="Sandboxed Artifact Preview"
         ></iframe>
 
-        <!-- Raw Markdown view (hidden by default) -->
+        <!-- Raw Markdown view -->
         <pre class="raw-markdown-view" id="raw-markdown-view" style="display:none;"></pre>
       </div>
     </aside>
   </div>
+
+  <!-- Toast notification element -->
+  <div class="toast-container" id="toast-container"></div>
 
   <script src="app.js"></script>
 </body>
