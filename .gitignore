@@ -1,0 +1,48 @@
+# Environments & cache
+.env
+.env.local
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Testing & linters
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Databases & local data
+*.sqlite
+*.sqlite3
+*.db
+local_vectors.json
+postgres_data/
+
+# OS & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+node_modules/
+dist/
